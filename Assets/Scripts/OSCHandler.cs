@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class OSCHandler : MonoBehaviour
 {
+    [SerializeField] private TMPro.TextMeshProUGUI txt_OSCMessage;
+    [SerializeField] private DisplayConnectionInfo displayConnectionInfo;
     public event Action OnRedMaterial;
     public event Action OnGreenMaterial;
     
@@ -28,11 +30,22 @@ public class OSCHandler : MonoBehaviour
         _receiver.Bind("/greenMaterial", MessageReceived);  
     }
 
+    private void OnEnable()
+    {
+        displayConnectionInfo.OnPortChanged += SetPort;
+    }
+
+    private void SetPort(int port)
+    {
+        receivePort = port;
+        _receiver.LocalPort = receivePort;
+    }
+    
     private void MessageReceived(OSCMessage message)
     {
         var value = message.Values[0].FloatValue;
         
-        Debug.Log($"value: {value}");
+        txt_OSCMessage.text = $"{message.Address} value: {value}";
         
         if (value > 0.0f)
         {
